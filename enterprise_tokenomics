@@ -1,0 +1,598 @@
+<!-- Read the html_slides_guide instructions before modifying this file. The stage sizing, carousel, controls, and @media print recipe are a strict contract — changing them breaks slide fit and PDF export. -->
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise Tokenomics</title>
+<style>
+:root {
+  --slide-w: 1280px;
+  --slide-h: 720px;
+  --stage-w: min(var(--slide-w), 100vw);
+  --stage-h: calc(var(--stage-w) * 9 / 16);
+  --artifact-background: #f6f7f9;
+  --artifact-background-light: #ffffff;
+  --artifact-background-mid: #eceef2;
+  --artifact-border-light: #e4e7ec;
+  --artifact-border-dark: #cbd0d9;
+  --artifact-primary-brand: #2f6bff;
+  --artifact-primary-soft: rgba(47,107,255,0.08);
+  --artifact-text-primary: #0f1319;
+  --artifact-text-secondary: #5b616e;
+  --artifact-positive: #0f9d64;
+  --artifact-positive-soft: rgba(15,157,100,0.10);
+  --artifact-warn: #c2660c;
+  --artifact-warn-soft: rgba(194,102,12,0.10);
+  --artifact-negative: #d9453d;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; overflow: hidden;
+  background-color: var(--artifact-background);
+  color: var(--artifact-text-primary);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 16px; font-weight: 400; line-height: 1.5; letter-spacing: -0.005em;
+}
+h1,h2,h3 { font-weight: 300; line-height: 1.05; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.eyebrow { font-family: "SF Mono","IBM Plex Mono","Consolas",monospace; font-size: 1.25cqw; font-weight:600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--artifact-primary-brand); }
+
+/* chassis */
+.deck-viewport { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden; }
+.deck { width: var(--stage-w); height: var(--stage-h); overflow: hidden; box-shadow: 0 1px 0 var(--artifact-border-dark), 0 0 0 1px var(--artifact-border-light); }
+.deck-track { height:100%; display:flex; transform: translateX(calc(var(--i,0) * -1 * var(--stage-w))); transition: transform 260ms ease; }
+.slide { flex: 0 0 var(--stage-w); width: var(--stage-w); height: var(--stage-h); container-type: inline-size; position: relative; display: grid; overflow: clip; contain: layout paint; background: var(--artifact-background); }
+.slide > * { min-width: 0; min-height: 0; }
+.slide-body { position: absolute; inset: 5cqw; display: grid; grid-template-rows: auto minmax(0,1fr) auto; gap: 2cqw; min-height:0; overflow-wrap: anywhere; }
+.slide-head { display:flex; justify-content: space-between; align-items: baseline; gap: 2cqw; }
+.slide-main { min-width:0; min-height:0; display:grid; gap: 2cqw; align-content:center; }
+.slide-foot { display:flex; justify-content: space-between; align-items:center; font-size: 1.02cqw; color: var(--artifact-text-secondary); border-top: 1px solid var(--artifact-border-light); padding-top: 1cqw; }
+.brand-mark { font-family:"SF Mono",monospace; font-size:1.2cqw; letter-spacing:0.08em; color: var(--artifact-text-secondary); }
+.brand-mark b { color: var(--artifact-primary-brand); font-weight:700; }
+
+.slide-title { font-size: 4.2cqw; line-height: 1.03; }
+.card { background: var(--artifact-background-light); border:1px solid var(--artifact-border-light); border-radius: 10px; padding: 2cqw; }
+
+/* title slide */
+.title-kicker { font-family:"SF Mono",monospace; font-size:1.4cqw; letter-spacing:0.2em; text-transform:uppercase; color: var(--artifact-primary-brand); }
+.mega { font-size: 6.1cqw; line-height:1.02; font-weight:250; }
+.title-sub { font-size: 1.55cqw; color: var(--artifact-text-secondary); max-width: 62ch; line-height:1.45; }
+.pill-row { display:flex; gap:1.1cqw; flex-wrap:wrap; }
+.pill { font-family:"SF Mono",monospace; font-size:1.1cqw; letter-spacing:0.03em; padding:0.65cqw 1.2cqw; border:1px solid var(--artifact-border-dark); border-radius:999px; color: var(--artifact-text-secondary); }
+
+/* metrics */
+.metric { font-weight:250; font-size: 5.2cqw; line-height:1; letter-spacing:-0.03em; font-variant-numeric: tabular-nums; }
+.metric.pos { color: var(--artifact-positive); }
+.metric.warn { color: var(--artifact-warn); }
+.metric.brand { color: var(--artifact-primary-brand); }
+.mlabel { font-size:1.2cqw; color: var(--artifact-text-secondary); margin-top:0.6cqw; line-height:1.35; }
+.kpi-row { display:grid; grid-template-columns: repeat(3,1fr); gap:1.5cqw; }
+.kpi-slim .card { padding:1.2cqw 1.5cqw; }
+.kpi-slim .metric { font-size:3.5cqw; }
+.kpi-slim .mlabel { font-size:1.0cqw; margin-top:0.4cqw; }
+
+.bodytext { font-size:1.5cqw; color: var(--artifact-text-secondary); line-height:1.5; }
+ul.clean { list-style:none; padding:0; margin:0; display:grid; gap:1.05cqw; }
+ul.clean li { font-size:1.45cqw; color: var(--artifact-text-secondary); padding-left:2cqw; position:relative; line-height:1.4; }
+ul.clean li::before { content:""; position:absolute; left:0; top:0.62cqw; width:0.8cqw; height:0.8cqw; border-radius:2px; background: var(--artifact-primary-brand); }
+ul.clean li b { color: var(--artifact-text-primary); font-weight:650; }
+.tight li { font-size:1.32cqw !important; line-height:1.34 !important; }
+
+.layout-two-col .slide-main { grid-template-columns: minmax(0,1.05fr) minmax(0,1fr); align-items:center; }
+
+/* flow comparison */
+.flow { display:grid; gap:1cqw; }
+.flow-row { display:flex; align-items:center; gap:1cqw; padding:1.3cqw 1.5cqw; border-radius:8px; border:1px solid var(--artifact-border-light); background: var(--artifact-background-light); }
+.flow-row.bad { border-left:4px solid var(--artifact-warn); }
+.flow-row.good { border-left:4px solid var(--artifact-primary-brand); }
+.flow-tag { font-family:"SF Mono",monospace; font-size:1.05cqw; letter-spacing:0.06em; text-transform:uppercase; width:13cqw; flex:none; }
+.flow-tag.bad { color: var(--artifact-warn); }
+.flow-tag.good { color: var(--artifact-primary-brand); }
+.chip { font-family:"SF Mono",monospace; font-size:1.02cqw; padding:0.5cqw 0.8cqw; border-radius:5px; white-space:nowrap; }
+.chip.bad { border:1px dashed var(--artifact-warn); color: var(--artifact-warn); }
+.chip.good { border:1px solid var(--artifact-primary-brand); color: var(--artifact-primary-brand); background: var(--artifact-primary-soft); }
+.chip.n { border:1px solid var(--artifact-border-dark); color: var(--artifact-text-secondary); }
+.sep { color: var(--artifact-text-secondary); font-size:1.3cqw; }
+.flow-note { margin-left:auto; font-size:1.15cqw; font-weight:600; white-space:nowrap; }
+.flow-note.bad { color: var(--artifact-warn); }
+.flow-note.good { color: var(--artifact-positive); }
+
+/* layer cake */
+.cake-wrap { display:grid; grid-template-columns: minmax(0,1fr) 15cqw; gap:1.3cqw; align-items:stretch; }
+.cake { display:grid; gap:0.55cqw; }
+.layer { display:grid; grid-template-columns: 1fr auto; align-items:center; gap:1.5cqw; padding:0.8cqw 1.4cqw; border-radius:7px; border:1px solid var(--artifact-border-light); background: var(--artifact-background-light); }
+.layer .lname { font-size:1.28cqw; font-weight:650; color: var(--artifact-text-primary); }
+.layer .lrole { font-size:1.0cqw; color: var(--artifact-text-secondary); line-height:1.28; }
+.layer .lmetric { font-family:"SF Mono",monospace; font-size:1.1cqw; color: var(--artifact-positive); text-align:right; white-space:nowrap; }
+.layer .lmetric.brand { color: var(--artifact-primary-brand); }
+.layer.hot { border-color: var(--artifact-primary-brand); background: var(--artifact-primary-soft); }
+.gov-rail { border:1px solid var(--artifact-border-dark); border-radius:7px; background: var(--artifact-background-mid); padding:1.4cqw; display:flex; flex-direction:column; justify-content:center; gap:0.85cqw; }
+.gov-rail .gh { font-family:"SF Mono",monospace; font-size:1.05cqw; letter-spacing:0.06em; text-transform:uppercase; color: var(--artifact-primary-brand); font-weight:600; }
+.gov-rail .gi { font-size:1.1cqw; color: var(--artifact-text-secondary); line-height:1.28; }
+.legend { display:flex; gap:1.6cqw; align-items:center; }
+.legend .li { display:flex; align-items:center; gap:0.55cqw; font-size:1.12cqw; color: var(--artifact-text-secondary); white-space:nowrap; }
+.legend .sw { width:1.35cqw; height:1.35cqw; border-radius:4px; flex:none; }
+.legend .sw.blue { background: var(--artifact-primary-soft); border:1.5px solid var(--artifact-primary-brand); }
+.legend .sw.white { background: var(--artifact-background-light); border:1.5px solid var(--artifact-border-dark); }
+
+/* bars */
+.bars { display:grid; gap:1.3cqw; align-content:center; }
+.col-tag { font-family:"SF Mono",monospace; font-size:1.05cqw; letter-spacing:0.06em; text-transform:uppercase; color: var(--artifact-text-secondary); }
+.bar-row { display:grid; grid-template-columns: 11cqw 1fr auto; gap:1.1cqw; align-items:center; }
+.bar-lab { font-size:1.25cqw; color: var(--artifact-text-secondary); }
+.bar-track { height:2.4cqw; background: var(--artifact-background-mid); border-radius:4px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:4px; }
+.bar-fill.bad { background: var(--artifact-warn); }
+.bar-fill.good { background: var(--artifact-primary-brand); }
+.bar-fill.neutral { background: var(--artifact-border-dark); }
+.bar-val { font-family:"SF Mono",monospace; font-size:1.2cqw; color: var(--artifact-text-primary); font-variant-numeric: tabular-nums; white-space:nowrap; }
+
+/* reframe table */
+.reframe { width:100%; border-collapse:collapse; }
+.reframe th { text-align:left; font-family:"SF Mono",monospace; font-size:1.05cqw; letter-spacing:0.06em; text-transform:uppercase; color: var(--artifact-text-secondary); padding:0.7cqw 1cqw; border-bottom:1px solid var(--artifact-border-dark); }
+.reframe td { font-size:1.3cqw; padding:0.8cqw 1cqw; border-bottom:1px solid var(--artifact-border-light); color: var(--artifact-text-secondary); vertical-align:top; }
+.reframe td.better { color: var(--artifact-text-primary); font-weight:600; }
+.reframe td.better::before { content:"→ "; color: var(--artifact-primary-brand); }
+
+/* three-up cards */
+.trio { display:grid; grid-template-columns: repeat(3,1fr); gap:1.6cqw; align-content:center; }
+.trio .t-h { font-size:1.5cqw; font-weight:650; color: var(--artifact-primary-brand); margin-bottom:0.7cqw; }
+.trio .t-b { font-size:1.28cqw; color: var(--artifact-text-secondary); line-height:1.42; }
+.trio .t-b b { color: var(--artifact-text-primary); font-weight:650; }
+.legend .dot { width:1.1cqw; height:1.1cqw; border-radius:50%; flex:none; }
+.tl { position:relative; height:100%; }
+.tl-line { position:absolute; left:0; right:0; top:50%; height:2px; background:var(--artifact-border-dark); transform:translateY(-1px); }
+.tl-grid { position:relative; height:100%; display:grid; grid-template-columns: repeat(9, minmax(0,1fr)); grid-template-rows: 1fr auto 1fr; column-gap:0.7cqw; align-items:center; }
+.tl-dot { grid-row:2; width:1.15cqw; height:1.15cqw; border-radius:50%; background:var(--cat,#0f1319); border:0.35cqw solid var(--artifact-background); justify-self:center; z-index:2; }
+.tl-card { border:1px solid var(--artifact-border-light); border-top:3px solid var(--cat,#0f1319); border-radius:6px; padding:0.65cqw 0.7cqw; background:var(--artifact-background-light); }
+.tl-card.up { grid-row:1; align-self:end; margin-bottom:1.1cqw; }
+.tl-card.down { grid-row:3; align-self:start; margin-top:1.1cqw; }
+.tl-card .d { font-family:"SF Mono",monospace; font-size:0.92cqw; color:var(--artifact-primary-brand); font-weight:600; }
+.tl-card .t { font-size:1.0cqw; color:var(--artifact-text-primary); font-weight:600; line-height:1.2; margin-top:0.2cqw; }
+.tl-card .s { font-size:0.88cqw; color:var(--artifact-text-secondary); line-height:1.18; margin-top:0.25cqw; }
+
+/* controls */
+.controls { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); display:flex; align-items:center; gap:10px; background: var(--artifact-background-light); border:1px solid var(--artifact-border-light); border-radius:999px; padding:6px 12px; z-index:50; box-shadow: 0 4px 16px rgba(15,19,25,0.08); }
+.controls button { background: transparent; border:1px solid var(--artifact-border-dark); color: var(--artifact-text-primary); border-radius:999px; padding:5px 12px; font-size:13px; cursor:pointer; font-family:inherit; }
+.controls button:hover { border-color: var(--artifact-primary-brand); color: var(--artifact-primary-brand); }
+#counter { font-family:"SF Mono",monospace; font-size:12px; color: var(--artifact-text-secondary); min-width:52px; text-align:center; }
+
+@media print {
+  @page { size: 1280px 720px; margin: 0; }
+  html, body { width: var(--slide-w); margin:0; overflow: visible; background:#fff; }
+  .deck-viewport { position: static; display:block; overflow: visible; }
+  .deck { width:auto; height:auto; transform:none; overflow:visible; box-shadow:none; }
+  .deck-track { display:block; transform:none; transition:none; }
+  *,*::before,*::after { animation:none !important; transition:none !important; }
+  .slide { width: var(--slide-w); height: var(--slide-h); aspect-ratio:auto; break-inside:avoid; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+  .slide:not(:last-child) { break-after: page; }
+  img, svg { max-width:none; }
+  .controls { display:none !important; }
+}
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+  <div class="deck">
+    <div class="deck-track">
+
+      <!-- SLIDE 1: TITLE -->
+      <section class="slide">
+        <div class="slide-body">
+          <header class="slide-head">
+            <span class="brand-mark"><b>Glean</b> · Southeast Strategic &amp; Enterprise</span>
+            <span class="brand-mark">Market POV · 2026</span>
+          </header>
+          <main class="slide-main" style="gap:1.6cqw;">
+            <div class="title-kicker">Enterprise Tokenomics</div>
+            <h1 class="mega">The economics of enterprise AI<br>are breaking. Context fixes the math.</h1>
+            <p class="title-sub">Frontier token prices and token-hungry agents are compounding cost faster than value. The winning unit is shifting from cost per token to yield per token, and the governed context layer is where that yield is won.</p>
+            <div class="pill-row">
+              <span class="pill">Cost curve</span>
+              <span class="pill">Fan-out vs context layer</span>
+              <span class="pill">The Glean stack</span>
+              <span class="pill">Open models</span>
+              <span class="pill">Sustainability</span>
+              <span class="pill">GTM POV</span>
+            </div>
+          </main>
+          <footer class="slide-foot"><span>Confidential</span><span>1 / 10</span></footer>
+        </div>
+      </section>
+
+      <!-- SLIDE 2: THE MOMENT -->
+      <section class="slide layout-two-col">
+        <div class="slide-body">
+          <header class="slide-head">
+            <span class="eyebrow">01 · The moment</span>
+            <span class="brand-mark"><b>Glean</b></span>
+          </header>
+          <main class="slide-main">
+            <div>
+              <h2 class="slide-title">Token spend is compounding faster than budgets</h2>
+              <p class="bodytext" style="margin-top:1.3cqw;">Chat was cheap. Coding, coworking, analysis, and automation are not. As teams move to agentic work, consumption scales non-linearly while frontier prices keep climbing. Cost is the symptom leaders feel first.</p>
+              <ul class="clean" style="margin-top:1.5cqw;">
+                <li><b>13x</b> growth in average monthly enterprise token spend, Jan 2025 to Jan 2026 (Ramp, 50K+ businesses)</li>
+                <li>Teams at <b>Uber and ServiceNow</b> reportedly burned annual AI-coding budgets in the first months of the year</li>
+                <li>Frontier list prices keep rising as agents fan out more tool calls and reasoning loops per task</li>
+              </ul>
+            </div>
+            <div class="card" style="display:flex; flex-direction:column; justify-content:center;">
+              <div class="col-tag">Avg monthly enterprise token spend (indexed)</div>
+              <svg viewBox="0 0 420 230" width="100%" preserveAspectRatio="xMidYMid meet" style="margin-top:6px;">
+                <line x1="40" y1="20" x2="40" y2="195" stroke="#cbd0d9"/>
+                <line x1="40" y1="195" x2="410" y2="195" stroke="#cbd0d9"/>
+                <line x1="40" y1="107" x2="410" y2="107" stroke="#e4e7ec" stroke-dasharray="3 4"/>
+                <text x="10" y="199" fill="#5b616e" font-family="monospace" font-size="11">0</text>
+                <text x="6" y="111" fill="#5b616e" font-family="monospace" font-size="11">6x</text>
+                <text x="2" y="24" fill="#5b616e" font-family="monospace" font-size="11">13x</text>
+                <polyline fill="none" stroke="#c2660c" stroke-width="2.5" points="40,193 108,190 176,184 244,172 300,150 348,112 390,26"/>
+                <circle cx="390" cy="26" r="5" fill="#c2660c"/>
+                <text x="46" y="212" fill="#5b616e" font-family="monospace" font-size="11">Jan '25</text>
+                <text x="180" y="212" fill="#5b616e" font-family="monospace" font-size="11">Jul '25</text>
+                <text x="352" y="212" fill="#5b616e" font-family="monospace" font-size="11">Jan '26</text>
+                <text x="298" y="58" fill="#c2660c" font-family="monospace" font-size="15" font-weight="700">+13x</text>
+              </svg>
+            </div>
+          </main>
+          <footer class="slide-foot"><span>Source: Ramp Economics Lab; public reporting on AI coding budgets</span><span>2 / 10</span></footer>
+        </div>
+      </section>
+
+      <!-- SLIDE 3: FAN-OUT MCP VS CONTEXT LAYER -->
+      <section class="slide">
+        <div class="slide-body">
+          <header class="slide-head">
+            <span class="eyebrow">02 · Where the tokens burn</span>
+            <span class="brand-mark"><b>Glean</b></span>
+          </header>
+          <main class="slide-main">
+            <h2 class="slide-title" style="max-width:60ch; font-size:2.9cqw;">Fanned-out MCP rebuilds context on every call. A context layer resolves it once.</h2>
+            <div class="card" style="display:flex; align-items:center; justify-content:center; padding:1.2cqw 1.8cqw;">
+              <svg viewBox="0 0 1060 250" width="100%" preserveAspectRatio="xMidYMid meet" style="font-family:Inter,sans-serif;">
+                <defs>
+                  <marker id="awarn" markerWidth="7" markerHeight="7" refX="5.5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#c2660c"/></marker>
+                  <marker id="abrand" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2f6bff"/></marker>
+                </defs>
+
+                <!-- LEFT : fan-out -->
+                <text x="24" y="18" fill="#c2660c" font-family="monospace" font-size="14" font-weight="700" letter-spacing="1">FAN-OUT MCP</text>
+                <rect x="165" y="32" width="180" height="46" rx="7" fill="#ffffff" stroke="#c2660c" stroke-width="1.5"/>
+                <text x="255" y="52" text-anchor="middle" fill="#0f1319" font-size="13" font-weight="600">Agent /</text>
+                <text x="255" y="68" text-anchor="middle" fill="#0f1319" font-size="13" font-weight="600">frontier model</text>
+                <!-- fan-out arrows -->
+                <line x1="255" y1="78" x2="53"  y2="192" stroke="#c2660c" stroke-width="1.5" opacity="0.85" marker-end="url(#awarn)"/>
+                <line x1="255" y1="78" x2="151" y2="192" stroke="#c2660c" stroke-width="1.5" opacity="0.85" marker-end="url(#awarn)"/>
+                <line x1="255" y1="78" x2="249" y2="192" stroke="#c2660c" stroke-width="1.5" opacity="0.85" marker-end="url(#awarn)"/>
+                <line x1="255" y1="78" x2="347" y2="192" stroke="#c2660c" stroke-width="1.5" opacity="0.85" marker-end="url(#awarn)"/>
+                <line x1="255" y1="78" x2="445" y2="192" stroke="#c2660c" stroke-width="1.5" opacity="0.85" marker-end="url(#awarn)"/>
+                <!-- source boxes -->
+                <g font-size="12" fill="#5b616e" text-anchor="middle">
+                  <rect x="12"  y="194" width="82" height="34" rx="6" fill="#fff" stroke="#cbd0d9"/><text x="53"  y="215" fill="#0f1319">Jira</text>
+                  <rect x="110" y="194" width="82" height="34" rx="6" fill="#fff" stroke="#cbd0d9"/><text x="151" y="215" fill="#0f1319">Slack</text>
+                  <rect x="208" y="194" width="82" height="34" rx="6" fill="#fff" stroke="#cbd0d9"/><text x="249" y="215" fill="#0f1319">Drive</text>
+                  <rect x="306" y="194" width="82" height="34" rx="6" fill="#fff" stroke="#cbd0d9"/><text x="347" y="215" fill="#0f1319">GitHub</text>
+                  <rect x="404" y="194" width="82" height="34" rx="6" fill="#fff" stroke="#cbd0d9"/><text x="445" y="215" fill="#0f1319">CRM</text>
+                </g>
+                <text x="24" y="247" fill="#c2660c" font-size="12" font-weight="600">N separate calls, re-stitched &amp; re-ranked on every query</text>
+
+                <!-- divider -->
+                <line x1="530" y1="6" x2="530" y2="240" stroke="#e4e7ec" stroke-width="1.5" stroke-dasharray="4 5"/>
+
+                <!-- RIGHT : Glean -->
+                <text x="560" y="18" fill="#2f6bff" font-family="monospace" font-size="14" font-weight="700" letter-spacing="1">GLEAN CONTEXT LAYER</text>
+                <rect x="690" y="32" width="180" height="46" rx="7" fill="#ffffff" stroke="#2f6bff" stroke-width="1.5"/>
+                <text x="780" y="52" text-anchor="middle" fill="#0f1319" font-size="13" font-weight="600">Agent /</text>
+                <text x="780" y="68" text-anchor="middle" fill="#0f1319" font-size="13" font-weight="600">frontier model</text>
+                <line x1="780" y1="78" x2="780" y2="106" stroke="#2f6bff" stroke-width="2.4" marker-end="url(#abrand)"/>
+                <text x="792" y="97" fill="#2f6bff" font-size="12" font-weight="600">1 call</text>
+                <rect x="655" y="108" width="250" height="48" rx="8" fill="#eef3ff" stroke="#2f6bff" stroke-width="1.6"/>
+                <text x="780" y="138" text-anchor="middle" fill="#2f6bff" font-size="15" font-weight="700">Glean context layer</text>
+                <line x1="780" y1="156" x2="780" y2="184" stroke="#2f6bff" stroke-width="2.4" marker-end="url(#abrand)"/>
+                <text x="780" y="180" text-anchor="middle" fill="#5b616e" font-size="11.5">pre-indexed &amp; ranked once</text>
+                <rect x="590" y="186" width="380" height="42" rx="8" fill="#f6f7f9" stroke="#cbd0d9"/>
+                <text x="780" y="212" text-anchor="middle" fill="#0f1319" font-size="12.5">Jira · Slack · Drive · GitHub · CRM</text>
+                <text x="560" y="247" fill="#2f6bff" font-size="12" font-weight="600">1 governed call, context resolved in advance</text>
+              </svg>
+            </div>
+            <div class="kpi-row kpi-slim">
+              <div class="card"><span class="metric warn">+30%</span><div class="mlabel">more tokens for off-the-shelf MCP vs Glean across ~175 Claude Cowork queries</div></div>
+              <div class="card"><span class="metric brand">2.5x</span><div class="mlabel">more often preferred on quality, gap widening as tasks get harder</div></div>
+              <div class="card"><span class="metric pos">-46%</span><div class="mlabel">tokens on a real engineering task: 1.46M federated vs 792K on Glean (Cox Automotive)</div></div>
+            </div>
+          </main>
+          <footer class="slide-foot"><span>Source: Glean Cowork MCP benchmark; Cox Automotive context-layer eval</span><span>3 / 10</span></footer>
+        </div>
+      </section>
+
+      <!-- SLIDE 4: TIMELINE -->
+      <section class="slide">
+        <div class="slide-body">
+          <header class="slide-head">
+            <span class="eyebrow">03 · The last nine months</span>
+            <span class="brand-mark"><b>Glean</b></span>
+          </header>
+          <main class="slide-main" style="grid-template-rows:auto auto 1fr; gap:1.4cqw; align-content:stretch;">
+            <h2 class="slide-title" style="font-size:3.1cqw;">Nine months that reset enterprise tokenomics</h2>
+            <div class="legend" style="font-size:1.05cqw;">
+              <span class="li"><span class="dot" style="background:#0f1319;"></span>Frontier model release</span>
+              <span class="li"><span class="dot" style="background:#c2660c;"></span>Agentic launch</span>
+              <span class="li"><span class="dot" style="background:#d9453d;"></span>Token-cost signal</span>
+              <span class="li"><span class="dot" style="background:#2f6bff;"></span>Open source</span>
+            </div>
+            <div class="tl">
+              <div class="tl-line"></div>
+              <div class="tl-grid">
+            <div class="tl-card up" style="grid-column:1; --cat:#c2660c;"><div class="d">Jan '26</div><div class="t">Claude Cowork preview</div><div class="s">MCP connectors: Drive, Slack, Asana, Notion</div></div>
+            <div class="tl-dot" style="grid-column:1; --cat:#c2660c;"></div>
+            <div class="tl-card down" style="grid-column:2; --cat:#0f1319;"><div class="d">Feb '26</div><div class="t">Gemini 3.1 Pro</div><div class="s">$2 / $12 per 1M</div></div>
+            <div class="tl-dot" style="grid-column:2; --cat:#0f1319;"></div>
+            <div class="tl-card up" style="grid-column:3; --cat:#d9453d;"><div class="d">Mar '26</div><div class="t">'Tokenmaxxing' goes mainstream</div><div class="s">NYT: workers max out AI</div></div>
+            <div class="tl-dot" style="grid-column:3; --cat:#d9453d;"></div>
+            <div class="tl-card down" style="grid-column:4; --cat:#0f1319;"><div class="d">Apr '26</div><div class="t">GPT-5.5</div><div class="s">$5 / $30 per 1M</div></div>
+            <div class="tl-dot" style="grid-column:4; --cat:#0f1319;"></div>
+            <div class="tl-card up" style="grid-column:5; --cat:#d9453d;"><div class="d">Apr '26</div><div class="t">Uber burns annual AI budget</div><div class="s">~4 months, via Claude Code</div></div>
+            <div class="tl-dot" style="grid-column:5; --cat:#d9453d;"></div>
+            <div class="tl-card down" style="grid-column:6; --cat:#0f1319;"><div class="d">May '26</div><div class="t">Claude Opus 4.8</div><div class="s">$5 / $25 per 1M</div></div>
+            <div class="tl-dot" style="grid-column:6; --cat:#0f1319;"></div>
+            <div class="tl-card up" style="grid-column:7; --cat:#2f6bff;"><div class="d">Jun '26</div><div class="t">GLM 5.2 open weights</div><div class="s">$1.40 / $4.40 · Index 51, top open</div></div>
+            <div class="tl-dot" style="grid-column:7; --cat:#2f6bff;"></div>
+            <div class="tl-card down" style="grid-column:8; --cat:#d9453d;"><div class="d">Jul '26</div><div class="t">Vendors shift to consumption</div><div class="s">Palantir slams tokenmaxxing; Copilot pay-as-you-go</div></div>
+            <div class="tl-dot" style="grid-column:8; --cat:#d9453d;"></div>
+            <div class="tl-card up" style="grid-column:9; --cat:#2f6bff;"><div class="d">Jul '26</div><div class="t">Open models take share</div><div class="s">Lindy 100% open ~90% cheaper; GLM ~40% dev tokens</div></div>
+            <div class="tl-dot" style="grid-column:9; --cat:#2f6bff;"></div>
+              </div>
+            </div>
+          </main>
+          <footer class="slide-foot"><span>Sources: Artificial Analysis; vendor release notes; CNBC / The Information / NYT reporting</span><span>4 / 10</span></footer>
+        </div>
+      </section>
+
+      <!-- SLIDE 5: THE GLEAN STACK LAYER CAKE -->
+      <section class="slide">
+        <div class="slide-body">
+          <header class="slide-head">
+            <span class="eyebrow">04 · The stack</span>
+            <div class="legend">
+              <span class="li"><span class="sw blue"></span>Primary token-reduction driver</span>
+              <span class="li"><span class="sw white"></span>Supporting layer</span>
+            </div>
+            <span class="brand-mark"><b>Glean</b></span>
+          </header>
+          <main class="slide-main">
+            <h2 class="slide-title" style="max-width:56ch; font-size:3.1cqw;">The Glean stack, by component and its role in token reduction</h2>
+            <div class="cake-wrap">
+              <div class="cake">
+                <div class="layer hot">
+                  <div><div class="lname">AI / MCP Gateway + Waldo</div><div class="lrole">Agentic search model runs first and offloads search from the frontier model through one governed tool</div></div>
+                  <div class="lmetric brand">search off the frontier model</div>
+                </div>
+                <div class="layer hot">
+                  <div><div class="lname">Adaptive Reasoning</div><div class="lrole">Routes fast vs deep per query and sets the frontier model's reasoning level for the task</div></div>
+                  <div class="lmetric brand">-25% tokens · -50% latency</div>
+                </div>
+                <div class="layer">
+                  <div><div class="lname">Semantic Layer</div><div class="lrole">Vector plus classical retrieval over unstructured content, so exploration stays narrow</div></div>
+                  <div class="lmetric">fewer retries</div>
+                </div>
+                <div class="layer hot">
+                  <div><div class="lname">Hybrid Index</div><div class="lrole">Keyword + vector + graph, pre-filtered and centrally ranked, built once and reused everywhere</div></div>
+                  <div class="lmetric brand">where tokenomics are won</div>
+                </div>
+                <div class="layer">
+                  <div><div class="lname">Knowledge Graph</div><div class="lrole">Entities, relationships, and permissions resolved in advance, not stitched at runtime</div></div>
+                  <div class="lmetric">no query-time joins</div>
+                </div>
+                <div class="layer">
+                  <div><div class="lname">Model Hub &amp; Universal Key</div><div class="lrole">Route each step by capability, cost, and governance across Bedrock, Vertex AI, and Azure, open and frontier</div></div>
+                  <div class="lmetric">right model per step</div>
+                </div>
+              </div>
+              <div class="gov-rail">
+                <div class="gh">Governance rail</div>
+                <div class="gi">Query-time permission enforcement</div>
+                <div class="gi">Scoped OAuth per surface</div>
+                <div class="gi">Prompt-injection protection</div>
+                <div class="gi">Single-tenant &amp; auditable</div>
+                <div class="gi" style="color:var(--artifact-primary-brand); font-weight:600;">Spans every layer above</div>
+              </div>
+            </div>
+          </main>
+          <footer class="slide-foot"><span>A precomputed join, not resolved at runtime: index &amp; graph built once, reused across every surface</span><span>5 / 10</span></footer>
+        </div>
+      </section>
+
+      <!-- SLIDE 5: OPEN MODELS VIABILITY -->
+      <section class="slide layout-two-col">
+        <div class="slide-body">
+          <header class="slide-head">
+            <span class="eyebrow">05 · Open models</span>
+            <span class="brand-mark"><b>Glean</b></span>
+          </header>
+          <main class="slide-main">
+            <div>
+              <h2 class="slide-title" style="font-size:3.5cqw;">Open models have reached the frontier pack. GLM 5.2 is the proof.</h2>
+              <ul class="clean" style="margin-top:1.3cqw;">
+                <li>On Artificial Analysis' Intelligence Index, <b>GLM 5.2 scores 51</b>, the top open-weight model, above Sonnet 4.6 and Gemini 3.5 and just behind GPT-5.5 (53) and Opus 4.8 (56)</li>
+                <li>Coding parity where it counts: <b>SWE-bench Pro 62.1</b> beats GPT-5.5 and sits ~1 point behind Opus 4.8 on FrontierSWE, at roughly <b>one-sixth the token price</b></li>
+                <li>Our own testing agrees: ~20% cheaper than GPT-5.4 on internal task evals, and at Cvent GLM matched Sonnet and Opus on instruction-following and tool use, cutting one user's workload cost ~80%</li>
+                <li>Its known gaps, long-horizon tasks and prompt-injection defense, are exactly what the <b>Glean harness backstops</b>, so route everyday work to open models and reserve frontier for the hardest reasoning</li>
+              </ul>
+            </div>
+            <div class="card bars">
+              <div class="col-tag">Intelligence Index v4.1 · GLM 5.2 open weights (MIT)</div>
+              <div class="bar-row"><span class="bar-lab">Opus 4.8</span><div class="bar-track"><div class="bar-fill neutral" style="width:93%;"></div></div><span class="bar-val">56</span></div>
+              <div class="bar-row"><span class="bar-lab">GPT-5.5</span><div class="bar-track"><div class="bar-fill neutral" style="width:88%;"></div></div><span class="bar-val">53</span></div>
+              <div class="bar-row"><span class="bar-lab" style="color:var(--artifact-primary-brand);font-weight:700;">GLM 5.2</span><div class="bar-track"><div class="bar-fill good" style="width:85%;"></div></div><span class="bar-val">51</span></div>
+              <div class="bar-row"><span class="bar-lab">Gemini 3.5</span><div class="bar-track"><div class="bar-fill neutral" style="width:83%;"></div></div><span class="bar-val">50</span></div>
+              <div class="bar-row"><span class="bar-lab">Sonnet 4.6</span><div class="bar-track"><div class="bar-fill neutral" style="width:78%;"></div></div><span class="bar-val">47</span></div>
+              <p class="bodytext" style="font-size:1.05cqw; margin-top:0.7cqw;">Blended $/1M tokens: <b style="color:var(--artifact-text-primary);">GLM 5.2 $0.90</b> vs Sonnet 4.6 $2.31, Opus 4.8 $3.85, GPT-5.5 $4.35. 1M-token context, self-hostable.</p>
+            </div>
+          </main>
+          <footer class="slide-foot"><span>Source: Artificial Analysis Intelligence Index v4.1; internal GLM evals; Cvent Claude Code eval</span><span>6 / 10</span></footer>
+        </div>
+      </section>
+
+      <!-- SLIDE 6: SUSTAINABILITY -->
+      <section class="slide layout-two-col">
+        <div class="slide-body">
+          <header class="slide-head">
+            <span class="eyebrow">06 · Sustainability</span>
+            <span class="brand-mark"><b>Glean</b></span>
+          </header>
+          <main class="slide-main">
+            <div>
+              <h2 class="slide-title" style="font-size:3.2cqw;">Token efficiency is a sustainability lever, not just a cost lever</h2>
+              <p class="bodytext" style="margin-top:1cqw; font-size:1.35cqw;">Every token is GPU inference, and inference is energy. Fewer tokens per unit of work means less compute and less carbon.</p>
+              <ul class="clean tight" style="margin-top:1.1cqw; gap:0.9cqw;">
+                <li>Three levers cut total compute, not just cost: <b>pre-computed context</b>, <b>adaptive routing</b> (frontier reserved for the hard ~50%), and <b>open, smaller models</b> for high-volume work</li>
+                <li>At 40,000 users, <b>Glean processes the fewest annual tokens</b> across every scenario, with Copilot and Claude 10 to 55% higher for the same work</li>
+                <li>Gives finance and sustainability teams a <b>shared metric</b>: tokens per outcome maps to energy per outcome</li>
+              </ul>
+            </div>
+            <div class="card bars">
+              <div class="col-tag" style="margin-bottom:0.3cqw;">Relative compute &amp; energy per unit of work (illustrative)</div>
+              <div class="bar-row"><span class="bar-lab">Frontier only</span><div class="bar-track"><div class="bar-fill bad" style="width:100%;"></div></div><span class="bar-val">100</span></div>
+              <div class="bar-row"><span class="bar-lab">+ Adaptive routing</span><div class="bar-track"><div class="bar-fill bad" style="width:70%;"></div></div><span class="bar-val">~70</span></div>
+              <div class="bar-row"><span class="bar-lab">+ Context layer</span><div class="bar-track"><div class="bar-fill good" style="width:52%;"></div></div><span class="bar-val">~52</span></div>
+              <div class="bar-row"><span class="bar-lab">+ Open model</span><div class="bar-track"><div class="bar-fill good" style="width:12%;"></div></div><span class="bar-val">~5-12</span></div>
+              <p class="bodytext" style="font-size:1.05cqw; margin-top:0.6cqw;">Fewer tokens flow to fewer, smaller, better-targeted model calls, so both the AI bill and the energy footprint fall together.</p>
+            </div>
+          </main>
+          <footer class="slide-foot"><span>Source: 40,000-user token modeling (Home Depot analysis); Glean routing &amp; open-model architecture</span><span>7 / 10</span></footer>
+        </div>
+      </section>
+
+      <!-- SLIDE 6: TOKENOMICS VS TOKEN YIELD + DIFFERENTIATION -->
+      <section class="slide">
+        <div class="slide-body">
+          <header class="slide-head">
+            <span class="eyebrow">07 · Differentiation &amp; message</span>
+            <span class="brand-mark"><b>Glean</b></span>
+          </header>
+          <main class="slide-main" style="grid-template-columns: 1.1fr 1fr; align-items:center;">
+            <div>
+              <h2 class="slide-title" style="font-size:3.4cqw;">Tokenomics is the symptom. Token yield is the strategy.</h2>
+              <table class="reframe" style="margin-top:1.2cqw;">
+                <thead><tr><th>Old question (cost)</th><th>Better question (yield)</th></tr></thead>
+                <tbody>
+                  <tr><td>How many tokens did we use?</td><td class="better">How much useful work did each token do?</td></tr>
+                  <tr><td>Which model is cheapest?</td><td class="better">Which context + model + workflow wins per dollar?</td></tr>
+                  <tr><td>How many agents did we build?</td><td class="better">Which agents changed how work gets done?</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card">
+              <div class="col-tag">Differentiation &amp; the moment</div>
+              <p class="bodytext" style="font-size:1.3cqw; margin-top:0.7cqw;">A <b style="color:var(--artifact-text-primary);">persisted, permission-aware context layer</b> beats context reassembled at query time. Buyers have moved from "adopt AI" to "prove yield," and they buy on token economics now.</p>
+              <ul class="clean" style="margin-top:1cqw;">
+                <li><b>Cvent</b>: custom Confluence agent cut tokens 50-60%; GLM cut one user's workload cost ~80%</li>
+                <li><b>Roku</b>: 40-60% token reduction with Glean as MCP for Claude Code</li>
+                <li><b>GEICO</b>: Claude Code token-savings eval as the wedge to an org-wide deal</li>
+              </ul>
+            </div>
+          </main>
+          <footer class="slide-foot"><span>Cost reduction is a feature. ROI expansion is the position: spend becomes work.</span><span>8 / 10</span></footer>
+        </div>
+      </section>
+
+      <!-- SLIDE 7: POSITIONING POV -->
+      <section class="slide">
+        <div class="slide-body">
+          <header class="slide-head">
+            <span class="eyebrow">08 · How we position</span>
+            <span class="brand-mark"><b>Glean</b></span>
+          </header>
+          <main class="slide-main">
+            <h2 class="slide-title">Positioning: frontier, DIY, platforms, and roadmaps</h2>
+            <div class="trio">
+              <div class="card">
+                <div class="t-h">vs Frontier &amp; DIY</div>
+                <div class="t-b">Not "instead of" frontier, but the <b>harness that makes it yield</b>. The toll road vs the highway: DIY MCP creates token usage, Glean creates token yield with governance built in.</div>
+              </div>
+              <div class="card">
+                <div class="t-h">Platform vs wedge</div>
+                <div class="t-b">Run both. Pursue the platform vision while landing a <b>lightweight token-savings wedge</b> (Claude Code eval, MCP A/B) that proves value in weeks and funds the expansion.</div>
+              </div>
+              <div class="card">
+                <div class="t-h">Roadmap vs art of the possible</div>
+                <div class="t-b">Roadmap clients: <b>attach to their named use cases</b> and prove yield on their workflow. Blank-slate clients: lead with blueprinting to surface use cases (Parexel found 38).</div>
+              </div>
+            </div>
+          </main>
+          <footer class="slide-foot"><span>Frontier &amp; DIY framing · big-platform vs fast wedge · roadmap-led vs art of the possible</span><span>9 / 10</span></footer>
+        </div>
+      </section>
+
+      <!-- SLIDE 8: GTM MOTION -->
+      <section class="slide">
+        <div class="slide-body">
+          <header class="slide-head">
+            <span class="eyebrow">09 · How we run the motion</span>
+            <span class="brand-mark"><b>Glean</b></span>
+          </header>
+          <main class="slide-main">
+            <h2 class="slide-title">The motion: higher, wider, and disciplined</h2>
+            <div class="trio">
+              <div class="card">
+                <div class="t-h">Get higher &amp; wider early</div>
+                <div class="t-b">Enter technical (CISO on the AI Gateway, dev leads on Claude Code) then <b>frame the CFO / CAIO yield story early</b>: one governed layer across every AI surface.</div>
+              </div>
+              <div class="card">
+                <div class="t-h">Discovery: deals vs time sinks</div>
+                <div class="t-b">Qualify on a <b>named budget, a token-cost pain, and a workflow we can benchmark</b>. Real deals have an apples-to-apples eval and an exec sponsor. Time sinks have neither.</div>
+              </div>
+              <div class="card">
+                <div class="t-h">Pipe gen: persistence + relevance</div>
+                <div class="t-b">Anchor outreach to <b>their public token pain and their stack</b>, bring a peer proof point, and return with a specific next test, not a generic follow-up.</div>
+              </div>
+            </div>
+          </main>
+          <footer class="slide-foot"><span>Higher &amp; wider · discovery discipline · persistent, relevant pipeline generation</span><span>10 / 10</span></footer>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <button id="prev">‹ Prev</button>
+  <span id="counter">1 / 10</span>
+  <button id="next">Next ›</button>
+  <button id="fs">Fullscreen</button>
+</div>
+
+<script>
+const viewport = document.querySelector('.deck-viewport');
+const track = document.querySelector('.deck-track');
+const slides = [...document.querySelectorAll('.slide')];
+let i = 0;
+const setActive = n => {
+  i = Math.max(0, Math.min(slides.length - 1, n));
+  track.style.setProperty('--i', i);
+  document.querySelector('#counter')?.replaceChildren(`${i + 1} / ${slides.length}`);
+};
+const toggleFullscreen = () => document.fullscreenElement ? document.exitFullscreen() : viewport?.requestFullscreen?.();
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') setActive(i + 1);
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') setActive(i - 1);
+  else if (e.key === 'Home') setActive(0);
+  else if (e.key === 'End') setActive(slides.length - 1);
+  else if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+});
+document.querySelector('#prev').onclick = () => setActive(i - 1);
+document.querySelector('#next').onclick = () => setActive(i + 1);
+document.querySelector('#fs').onclick = toggleFullscreen;
+setActive(0);
+
+window.GleanBridge?.postMessage?.({ actionId: 'export-pdf', type: 'glean-add-menu', metadata: { label: 'Export PDF', icon: 'export' } });
+window.GleanBridge?.onMessage?.('action', async d => {
+  if (d.actionId !== 'export-pdf') return;
+  if (document.fullscreenElement) await document.exitFullscreen();
+  await document.fonts.ready;
+  window.print();
+});
+</script>
+</body>
+</html>
