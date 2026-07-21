@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glean follow-up for HP</title>
+<style>
+  :root{
+    --artifact-background: var(--theme-background, #f7f5f1);
+    --artifact-surface: var(--theme-background-light, #ffffff);
+    --artifact-surface-alt: #efece5;
+    --artifact-text-primary: var(--theme-text-primary, #17181c);
+    --artifact-text-muted: #5c616d;
+    --artifact-text-faint: #8b8f9a;
+    --artifact-accent: #0b7cae;
+    --artifact-accent-soft: #e6f1f8;
+    --artifact-accent-deep: #06567b;
+    --artifact-ink: #17181c;
+    --artifact-border: #e6e1d8;
+    --artifact-border-strong: #d6d0c4;
+    --artifact-hero-1:#0a2a3a; --artifact-hero-2:#0b4a68; --artifact-hero-3:#0b7cae;
+    --artifact-hero-text:#f4fbff; --artifact-hero-muted:#a9cfe2;
+    --artifact-shadow: 0 1px 2px rgba(23,24,28,.04), 0 10px 30px rgba(23,24,28,.06);
+    --artifact-shadow-hover: 0 3px 8px rgba(11,124,174,.14), 0 22px 50px rgba(23,24,28,.12);
+  }
+  html[data-theme='dark']{
+    --artifact-background: var(--theme-background, #101216);
+    --artifact-surface: var(--theme-background-light, #191c22);
+    --artifact-surface-alt: #20242b;
+    --artifact-text-primary: var(--theme-text-primary, #eceef2);
+    --artifact-text-muted: #9aa0ac;
+    --artifact-text-faint: #737985;
+    --artifact-accent: #3aa9d8;
+    --artifact-accent-soft: #10303d;
+    --artifact-accent-deep: #86ccea;
+    --artifact-ink: #eceef2;
+    --artifact-border: #2a2e37;
+    --artifact-border-strong: #383d47;
+    --artifact-hero-1:#081d29; --artifact-hero-2:#0a3346; --artifact-hero-3:#0b5f86;
+    --artifact-hero-text:#eef8ff; --artifact-hero-muted:#8fbdd4;
+    --artifact-shadow: 0 1px 2px rgba(0,0,0,.34), 0 10px 30px rgba(0,0,0,.3);
+    --artifact-shadow-hover: 0 3px 8px rgba(58,169,216,.18), 0 22px 50px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--artifact-background);color:var(--artifact-text-primary);line-height:1.62;-webkit-font-smoothing:antialiased}
+  ::selection{background:var(--artifact-accent-soft);color:var(--artifact-accent-deep)}
+
+  /* progress bar */
+  .progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--artifact-accent);z-index:50;transition:width .1s linear}
+
+  /* ---- HERO ---- */
+  .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--artifact-hero-1) 0%,var(--artifact-hero-2) 55%,var(--artifact-hero-3) 130%);color:var(--artifact-hero-text)}
+  .hero::before{content:"";position:absolute;inset:0;background:
+     radial-gradient(60% 90% at 82% 8%,rgba(120,205,240,.28),transparent 60%),
+     radial-gradient(50% 70% at 5% 100%,rgba(11,124,174,.35),transparent 60%);pointer-events:none}
+  .hero-grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:52px 52px;mask-image:radial-gradient(circle at 70% 20%,black,transparent 75%);opacity:.6}
+  .hero-inner{position:relative;max-width:1120px;margin:0 auto;padding:74px 40px 60px}
+  .brand-row{display:flex;align-items:center;gap:14px;font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--artifact-hero-muted);font-weight:600;margin-bottom:30px}
+  .brand-row .dot{width:6px;height:6px;border-radius:50%;background:var(--artifact-hero-muted);opacity:.7}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:600;font-size:clamp(32px,4.6vw,52px);line-height:1.08;letter-spacing:-.015em;margin:0 0 22px;max-width:17ch}
+  .hero-lede{font-size:clamp(16px,1.5vw,19px);color:var(--artifact-hero-muted);max-width:60ch;margin:0 0 34px}
+  .hero-meta{font-size:13.5px;color:var(--artifact-hero-muted);border-top:1px solid rgba(255,255,255,.14);padding-top:20px;max-width:60ch}
+  .hero-meta strong{color:var(--artifact-hero-text);font-weight:600}
+
+  /* metrics band */
+  .metrics{position:relative;max-width:1120px;margin:-38px auto 0;padding:0 40px;z-index:5}
+  .metrics-inner{background:var(--artifact-surface);border:1px solid var(--artifact-border);border-radius:16px;box-shadow:var(--artifact-shadow);display:grid;grid-template-columns:repeat(4,1fr);overflow:hidden}
+  @media(max-width:760px){.metrics-inner{grid-template-columns:repeat(2,1fr)}}
+  .metric{padding:26px 24px;border-right:1px solid var(--artifact-border)}
+  .metric:last-child{border-right:none}
+  @media(max-width:760px){.metric:nth-child(2){border-right:none}.metric:nth-child(1),.metric:nth-child(2){border-bottom:1px solid var(--artifact-border)}}
+  .metric .val{font-family:Georgia,serif;font-size:34px;font-weight:600;color:var(--artifact-accent-deep);letter-spacing:-.01em;line-height:1}
+  .metric .lab{font-size:12.5px;color:var(--artifact-text-muted);margin-top:8px}
+
+  /* layout */
+  .shell{max-width:1120px;margin:0 auto;padding:0 40px}
+  .layout{display:grid;grid-template-columns:190px 1fr;gap:50px;align-items:start;padding-top:58px}
+  @media(max-width:900px){.layout{grid-template-columns:1fr;gap:0;padding-top:44px}.toc{display:none}}
+  .toc{position:sticky;top:30px}
+  .toc-label{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--artifact-text-faint);margin-bottom:14px;font-weight:700}
+  .toc a{display:block;color:var(--artifact-text-muted);text-decoration:none;font-size:13.5px;padding:7px 0 7px 14px;border-left:2px solid var(--artifact-border);transition:.18s}
+  .toc a:hover{color:var(--artifact-text-primary);border-left-color:var(--artifact-border-strong)}
+  .toc a.active{color:var(--artifact-accent-deep);border-left-color:var(--artifact-accent);font-weight:600}
+
+  section{padding:54px 0;border-bottom:1px solid var(--artifact-border)}
+  section:last-of-type{border-bottom:none}
+  .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--artifact-accent);font-weight:700;margin-bottom:12px}
+  h2{font-family:Georgia,"Times New Roman",serif;font-weight:600;font-size:28px;margin:0 0 10px;letter-spacing:-.01em}
+  .section-sub{color:var(--artifact-text-muted);font-size:15.5px;margin:0 0 28px;max-width:68ch}
+
+  /* use cases */
+  .uc{display:flex;gap:20px;padding:22px 0;border-top:1px solid var(--artifact-border)}
+  .uc:first-of-type{border-top:none}
+  .uc-num{flex:none;width:40px;height:40px;border-radius:12px;background:var(--artifact-accent-soft);color:var(--artifact-accent-deep);font-family:Georgia,serif;font-weight:600;display:flex;align-items:center;justify-content:center;font-size:18px}
+  .uc-body h3{margin:6px 0 6px;font-size:17px;font-weight:650}
+  .uc-body p{margin:0;color:var(--artifact-text-muted);font-size:14.5px}
+  .uc-tail{margin-top:24px;padding:18px 22px;background:var(--artifact-surface-alt);border-radius:12px;font-size:14.5px;color:var(--artifact-text-muted)}
+  .stat{color:var(--artifact-accent-deep);font-weight:700}
+
+  .stack{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .chip{font-size:13px;padding:8px 15px;border-radius:999px;background:var(--artifact-surface);border:1px solid var(--artifact-border-strong);color:var(--artifact-text-primary);font-weight:500}
+  .chip.core{background:var(--artifact-accent-soft);border-color:transparent;color:var(--artifact-accent-deep);font-weight:600}
+  .plus{color:var(--artifact-text-faint);font-size:18px;padding:0 2px}
+
+  .group-label{display:flex;align-items:center;gap:12px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--artifact-accent);font-weight:700;margin:34px 0 16px}
+  .group-label::after{content:"";flex:1;height:1px;background:var(--artifact-border)}
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  @media(max-width:640px){.cards{grid-template-columns:1fr}}
+  a.card{position:relative;display:block;text-decoration:none;color:inherit;background:var(--artifact-surface);border:1px solid var(--artifact-border);border-radius:14px;padding:22px 22px 20px;box-shadow:var(--artifact-shadow);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;overflow:hidden}
+  a.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--artifact-accent);transform:scaleY(0);transform-origin:top;transition:transform .24s ease}
+  a.card:hover{transform:translateY(-3px);box-shadow:var(--artifact-shadow-hover);border-color:var(--artifact-accent)}
+  a.card:hover::before{transform:scaleY(1)}
+  a.card.wide{grid-column:1 / -1}
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:9px}
+  .card h4{margin:0;font-size:16px;font-weight:650;line-height:1.35}
+  .arrow{flex:none;color:var(--artifact-accent);font-size:17px;transition:transform .22s ease;margin-top:1px}
+  a.card:hover .arrow{transform:translate(3px,-3px)}
+  .card p{margin:0;color:var(--artifact-text-muted);font-size:13.5px}
+  .card .tag{display:inline-block;margin-top:12px;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--artifact-text-faint);font-weight:700;border:1px solid var(--artifact-border);padding:4px 9px;border-radius:6px}
+
+  .callout{margin-top:24px;padding:22px 24px;border-radius:14px;background:linear-gradient(120deg,var(--artifact-accent-soft),transparent 140%);border:1px solid var(--artifact-border);font-size:14.5px;color:var(--artifact-text-primary)}
+  .callout strong{color:var(--artifact-accent-deep)}
+
+  .fail{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:6px}
+  @media(max-width:820px){.fail{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:460px){.fail{grid-template-columns:1fr}}
+  .fail div{background:var(--artifact-surface);border:1px solid var(--artifact-border);border-radius:11px;padding:16px 15px;font-size:13.5px;box-shadow:var(--artifact-shadow)}
+  .fail .k{display:block;font-family:Georgia,serif;color:var(--artifact-accent);font-weight:600;font-size:20px;margin-bottom:6px}
+
+  .go-grid{display:grid;grid-template-columns:1.3fr .9fr;gap:24px}
+  @media(max-width:760px){.go-grid{grid-template-columns:1fr}}
+  .sessions{list-style:none;padding:0;margin:16px 0 0}
+  .sessions li{position:relative;padding:13px 0 13px 24px;border-top:1px solid var(--artifact-border);font-size:14.5px}
+  .sessions li:first-child{border-top:none}
+  .sessions li::before{content:"";position:absolute;left:0;top:19px;width:7px;height:7px;border-radius:50%;background:var(--artifact-accent)}
+  .go-side{background:linear-gradient(150deg,var(--artifact-surface),var(--artifact-accent-soft) 220%);border:1px solid var(--artifact-border);border-radius:16px;padding:26px;box-shadow:var(--artifact-shadow);height:fit-content}
+  .go-side .lbl{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--artifact-text-faint);font-weight:700}
+  .code{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 20px;padding:14px 16px;border:1px dashed var(--artifact-border-strong);border-radius:11px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:18px;font-weight:700;color:var(--artifact-accent-deep);background:var(--artifact-surface)}
+  .copy-btn{font-family:-apple-system,sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:none;border-radius:8px;padding:8px 13px;background:var(--artifact-accent);color:#fff;cursor:pointer;transition:.18s}
+  .copy-btn:hover{background:var(--artifact-accent-deep)}
+  html[data-theme='dark'] .copy-btn{color:#08131a}
+  .btn-link{display:inline-flex;align-items:center;gap:6px;margin-top:6px;text-decoration:none;font-size:14px;font-weight:600;color:var(--artifact-accent-deep)}
+
+  .next-list{margin:16px 0 0;padding:0;list-style:none;counter-reset:n}
+  .next-list li{position:relative;padding:14px 0 14px 44px;border-top:1px solid var(--artifact-border);font-size:15px}
+  .next-list li:first-child{border-top:none}
+  .next-list li::before{counter-increment:n;content:counter(n);position:absolute;left:0;top:13px;width:28px;height:28px;border-radius:9px;background:var(--artifact-accent-soft);color:var(--artifact-accent-deep);font-family:Georgia,serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center}
+
+  footer{padding:44px 0 70px;color:var(--artifact-text-muted);font-size:14.5px}
+  .sig{margin-top:8px;color:var(--artifact-text-primary);font-weight:600;font-size:15px}
+  .sig span{color:var(--artifact-text-faint);font-weight:400}
+
+  .deck-embed{position:relative;width:100%;aspect-ratio:16/9;border:1px solid var(--artifact-border);border-radius:14px;overflow:hidden;box-shadow:var(--artifact-shadow);background:var(--artifact-surface)}
+  .deck-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+  .reveal{opacity:0;transform:translateY(18px)}
+  .reveal.in{opacity:1;transform:none;transition:opacity .7s ease,transform .7s ease}
+
+  @media print{
+    .progress{display:none!important}
+    body{margin:0;padding:0;background:#fff;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .hero{background:#0b4a68!important}
+    .hero-grid-lines{display:none}
+    .shell,.metrics,.hero-inner{max-width:100%!important;width:100%!important}
+    .layout{grid-template-columns:1fr!important;padding-top:24px}
+    .toc{display:none!important}
+    [style*="position:sticky"]{position:static!important}
+    section,.hero,.metrics{break-inside:avoid;margin-bottom:14px!important}
+    a.card,.go-side,.uc,.fail div,.metric{break-inside:avoid;box-shadow:none!important;border:1px solid rgba(0,0,0,.1)}
+    .cards,.fail,.go-grid,.metrics-inner{gap:10px!important}
+    .reveal{opacity:1!important;transform:none!important}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    button,.copy-btn{display:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<div class="hero">
+  <div class="hero-grid-lines"></div>
+  <div class="hero-inner">
+    <div class="brand-row"><span>Glean</span><span class="dot"></span><span>Prepared for HP</span><span class="dot"></span><span>Follow-up</span></div>
+    <h1>The questions you raised, with the proof behind each one.</h1>
+    <p class="hero-lede">A tighter recap from our conversation on differentiation, token economics, and build versus buy, with the most relevant material for your team gathered in one place.</p>
+    <p class="hero-meta">Prepared for <strong>Amit Gupta</strong> &middot; Strategy &amp; AI Transformation, Personal Systems &nbsp;|&nbsp; from <strong>Gautam Batta</strong> &amp; <strong>Pearl Ramirez</strong>, Glean</p>
+  </div>
+</div>
+
+<div class="metrics">
+  <div class="metrics-inner">
+    <div class="metric"><div class="val"><span class="count" data-to="1.9" data-dec="1">0</span>x</div><div class="lab">Preferred as correct vs. ChatGPT company knowledge</div></div>
+    <div class="metric"><div class="val"><span class="count" data-to="20">0</span>%</div><div class="lab">Fewer internal support requests (Forrester)</div></div>
+    <div class="metric"><div class="val"><span class="count" data-to="10">0</span> min</div><div class="lab">Saved per ticket at Confluent (5&ndash;10)</div></div>
+    <div class="metric"><div class="val"><span class="count" data-to="110">0</span> hrs</div><div class="lab">Saved per user per year (Forrester)</div></div>
+  </div>
+</div>
+
+<div class="shell">
+<div class="layout">
+
+  <nav class="toc" aria-label="Contents">
+    <div class="toc-label">On this page</div>
+    <a href="#usecases">Where teams start</a>
+    <a href="#starting">HP starting point</a>
+    <a href="#context">Why context matters</a>
+    <a href="#deck">Tokenomics deck</a>
+    <a href="#resources">Resources</a>
+    <a href="#build">Build vs. buy</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#gleango">Glean:GO</a>
+    <a href="#next">Next step</a>
+  </nav>
+
+  <main>
+    <section id="usecases" class="reveal">
+      <div class="kicker">The bread and butter</div>
+      <h2>The four things people consistently use Glean for</h2>
+      <p class="section-sub">To your point about not going too broad, these are the core, hard-to-replicate use cases. Each depends on the permissioned context layer, the part a generic LLM can't match without heavy token cost.</p>
+
+      <div class="uc"><div class="uc-num">1</div><div class="uc-body">
+        <h3>Trusted enterprise search across every permissioned system</h3>
+        <p>Finding the right document, answer, or expert across SharePoint, Teams, CRM, ticketing, and internal knowledge, grounded in each person's access and without burning tokens on full-index scans.</p>
+      </div></div>
+      <div class="uc"><div class="uc-num">2</div><div class="uc-body">
+        <h3>Support and service resolution</h3>
+        <p>Faster case handling by pulling answers across tickets, docs, and prior issues. Wealthsimple and Confluent both use it here, with Confluent reporting <span class="stat">5 to 10 minutes saved per ticket</span> and Forrester citing about <span class="stat">20% fewer</span> internal support requests.</p>
+      </div></div>
+      <div class="uc"><div class="uc-num">3</div><div class="uc-body">
+        <h3>Sales and account productivity</h3>
+        <p>Meeting prep, account research, and follow-up drawing on prior calls and internal account context. TIME uses it for meeting prep and drafting initial pitches, and Confluent AEs pull up past deal cycles faster.</p>
+      </div></div>
+      <div class="uc"><div class="uc-num">4</div><div class="uc-body">
+        <h3>Cross-team and cross-geography knowledge reuse</h3>
+        <p>Exactly the France-to-US example you raised. Surfacing what one region or team already solved so another can benefit, at scale, speed, and cost, which is hard to do manually in a matrixed org.</p>
+      </div></div>
+
+      <div class="uc-tail">Once that context layer is in place, agents and workflow automation sit on top, so teams build repeatable workflows that retrieve context, reason across it, and take action.</div>
+    </section>
+
+    <section id="starting" class="reveal">
+      <div class="kicker">Where to begin</div>
+      <h2>A practical HP starting point</h2>
+      <p class="section-sub">The most practical starting point is usually a minimum viable context set, not every system on day one, which is enough to test relevance, answer quality, and cost behavior before broadening scope.</p>
+      <div class="stack">
+        <span class="chip core">Microsoft 365</span>
+        <span class="chip core">SharePoint</span>
+        <span class="chip core">Teams</span>
+        <span class="plus">+</span>
+        <span class="chip">one system of record</span>
+        <span class="chip">CRM</span>
+        <span class="chip">ServiceNow</span>
+        <span class="chip">Jira</span>
+      </div>
+    </section>
+
+    <section id="context" class="reveal">
+      <div class="kicker">The secret sauce</div>
+      <h2>Why context is the hard part</h2>
+      <p class="section-sub">To Prakash's point about the context layer, this is the piece that decides whether AI answers are trustworthy, and it's the part that's genuinely hard to build and keep current. It's also why the build-versus-buy math tends to favor buy.</p>
+      <div class="fail">
+        <div><span class="k">01</span><strong>Accuracy &amp; trust.</strong> Answers are only as good as retrieval. Context grounds every model in the right, permissioned source, so you get the canonical answer instead of a plausible guess.</div>
+        <div><span class="k">02</span><strong>Permissions &amp; security.</strong> Context has to respect who can see what across every system, or it becomes a data risk rather than an asset.</div>
+        <div><span class="k">03</span><strong>Connectivity that keeps up.</strong> Connectors to structured and unstructured systems, maintained as tools, apps, and models keep changing.</div>
+        <div><span class="k">04</span><strong>Pace of change.</strong> It's a full-time problem. Glean has 1,500+ people and hundreds of engineers focused only on this, and teams that went down the build path have come back.</div>
+      </div>
+      <div class="callout">Build the context once, then point any model or front end at it. That is why the same layer serves OpenAI, Copilot, or open-source models without re-wiring for each.</div>
+    </section>
+
+    <section id="deck" class="reveal">
+      <div class="kicker">Deep dive</div>
+      <h2>The full tokenomics story</h2>
+      <p class="section-sub">The complete POV on enterprise tokenomics: the cost curve, fan-out MCP versus a governed context layer, the Glean stack, open models, and where this is heading. Use the on-slide controls or your arrow keys to move through it.</p>
+      <div class="deck-embed"><iframe src="enterprise_tokenomics.html" title="Enterprise Tokenomics presentation" loading="lazy"></iframe></div>
+      <a class="btn-link" href="enterprise_tokenomics.html" target="_blank" rel="noopener" style="margin-top:12px">Open the full presentation &#8599;</a>
+    </section>
+
+    <section id="resources" class="reveal">
+      <div class="kicker">Everything in one place</div>
+      <h2>Most relevant resources</h2>
+      <p class="section-sub">Grouped by the questions they answer. Every link opens the live page.</p>
+
+      <div class="group-label">Architecture &amp; token economics</div>
+      <div class="cards">
+        <a class="card" href="https://www.glean.com/perspectives/glean-waldo-vs-traditional-ai-cost-latency-and-quality-comparison" target="_blank" rel="noopener">
+          <div class="card-top"><h4>Glean Waldo vs. traditional AI</h4><span class="arrow">&#8599;</span></div>
+          <p>The clearest overview of the architecture question: why separating retrieval planning from reasoning improves cost, latency, and quality at once.</p>
+          <span class="tag">Cost &middot; Latency &middot; Quality</span>
+        </a>
+        <a class="card" href="https://www.glean.com/blog/token-efficiency-enterprise-ai" target="_blank" rel="noopener">
+          <div class="card-top"><h4>The real drivers of token efficiency</h4><span class="arrow">&#8599;</span></div>
+          <p>Where token waste actually comes from, and why retrieval quality, context selection, and orchestration matter more than prompt trimming.</p>
+          <span class="tag">Token efficiency</span>
+        </a>
+        <a class="card wide" href="https://www.glean.com/resources/guides/token-economy-enterprise-ai" target="_blank" rel="noopener">
+          <div class="card-top"><h4>Whitepaper &mdash; How enterprise AI systems reduce token cost at scale</h4><span class="arrow">&#8599;</span></div>
+          <p>The deeper version on the token economics, for when your team wants to go past the blog into the full report.</p>
+          <span class="tag">Deep dive &middot; Whitepaper</span>
+        </a>
+      </div>
+
+      <div class="callout" style="margin-top:18px"><strong>Does building context add token overhead per query?</strong><br>No. The index and knowledge graph are built once, not re-sent on every query. Retrieval selects only the most relevant context to pass to the model, so per-query token use stays low, and Waldo optimizes model routing on top of that.</div>
+
+      <div class="group-label">Benchmarks vs. OpenAI &amp; Microsoft</div>
+      <div class="cards">
+        <a class="card wide" href="https://www.glean.com/blog/enterprise-search-evaluation-2026" target="_blank" rel="noopener">
+          <div class="card-top"><h4>Enterprise search evaluation vs. ChatGPT and Claude</h4><span class="arrow">&#8599;</span></div>
+          <p>The most direct answer to differentiation. In a blind, human-graded evaluation, reviewers picked Glean's answer as correct <span class="stat">1.9x</span> more often than ChatGPT company knowledge and <span class="stat">1.6x</span> more often than Claude enterprise search.</p>
+          <span class="tag">vs. OpenAI &middot; vs. Anthropic</span>
+        </a>
+        <a class="card" href="https://www.glean.com/compare/glean-vs-copilot" target="_blank" rel="noopener">
+          <div class="card-top"><h4>Glean vs. Microsoft 365 Copilot</h4><span class="arrow">&#8599;</span></div>
+          <p>The graph and enterprise-context differences versus Copilot, on the Microsoft side specifically.</p>
+          <span class="tag">vs. Microsoft</span>
+        </a>
+        <a class="card" href="https://www.glean.com/blog/cowork-mcp-eval" target="_blank" rel="noopener">
+          <div class="card-top"><h4>Glean vs. off-the-shelf MCP</h4><span class="arrow">&#8599;</span></div>
+          <p>A second benchmark on the cost and token side, evaluating off-the-shelf MCP-based approaches versus Glean.</p>
+          <span class="tag">MCP &middot; Token cost</span>
+        </a>
+      </div>
+
+      <div class="group-label">Evaluation &amp; build vs. buy</div>
+      <div class="cards">
+        <a class="card" href="https://www.glean.com/resources/guides/how-to-compare-enterprise-ai-assistants" target="_blank" rel="noopener">
+          <div class="card-top"><h4>How to compare enterprise AI assistants</h4><span class="arrow">&#8599;</span></div>
+          <p>Closest to how you were framing the evaluation: security and permissions, governance, integrations, retrieval quality, deployment flexibility, and cost.</p>
+          <span class="tag">Evaluation framework</span>
+        </a>
+        <a class="card" href="https://www.glean.com/perspectives/should-i-build-or-buy-an-enterprise-ai-assistant-for-my-business" target="_blank" rel="noopener">
+          <div class="card-top"><h4>Build vs. buy: choosing your enterprise AI assistant</h4><span class="arrow">&#8599;</span></div>
+          <p>The tradeoffs around staffing, maintenance, governance, and time to value on the build-versus-buy question.</p>
+          <span class="tag">Build vs. buy</span>
+        </a>
+      </div>
+
+      <div class="group-label">ROI &amp; customer proof</div>
+      <div class="cards">
+        <a class="card" href="https://www.glean.com/resources/guides/forrester-study-the-total-economic-impact-of-glean" target="_blank" rel="noopener">
+          <div class="card-top"><h4>Forrester &mdash; Total Economic Impact of Glean</h4><span class="arrow">&#8599;</span></div>
+          <p>The strongest public ROI resource, covering measured productivity impact, adoption, onboarding savings, and support deflection.</p>
+          <span class="tag">ROI &middot; Third-party study</span>
+        </a>
+        <a class="card" href="https://www.glean.com/resources/customer-stories/wealthsimple" target="_blank" rel="noopener">
+          <div class="card-top"><h4>Wealthsimple customer story</h4><span class="arrow">&#8599;</span></div>
+          <p>A customer example tying usage and savings back to real workflows, including onboarding, support, and faster access to knowledge.</p>
+          <span class="tag">Customer story</span>
+        </a>
+      </div>
+
+      <div class="callout"><strong>Why Glean when you're already invested in OpenAI and Microsoft?</strong><br>Glean isn't a competing front end. It's the context layer underneath. You keep OpenAI, Copilot, or any model, and Glean grounds all of them in one permissioned index, knowledge graph, and retrieval layer, so you build that context once instead of re-wiring it for each tool.</div>
+    </section>
+
+    <section id="build" class="reveal">
+      <div class="kicker">Honest tradeoffs</div>
+      <h2>Where build-it-yourself efforts usually get stuck</h2>
+      <p class="section-sub">The failure points that come up most often when teams build internally.</p>
+      <div class="fail">
+        <div><span class="k">01</span>Connector sprawl</div>
+        <div><span class="k">02</span>Permissions &amp; governance</div>
+        <div><span class="k">03</span>Weak retrieval &amp; ranking</div>
+        <div><span class="k">04</span>Cost control across models</div>
+        <div><span class="k">05</span>Ongoing maintenance</div>
+      </div>
+      <div class="callout">On the specific examples you asked about, including customers who built internally first and later came back to Glean, those are best walked through live. Happy to review a few of them and the reasons each one shifted on a call.</div>
+    </section>
+
+    <section id="gleango" class="reveal">
+      <div class="kicker">See it in the room</div>
+      <h2>Glean:GO 2026</h2>
+      <div class="go-grid">
+        <div>
+          <p class="section-sub" style="margin-bottom:6px">A few sessions that seem especially relevant based on our conversation:</p>
+          <ul class="sessions">
+            <li>Understanding Glean Enterprise Context: Features and roadmap</li>
+            <li>How tokenomics ate the world</li>
+            <li>Choosing your AI front door: Where to standardize and where to stay flexible</li>
+            <li>Under the hood: Customer developer stories building with the Glean platform</li>
+          </ul>
+        </div>
+        <div class="go-side">
+          <div class="lbl">Your discount code</div>
+          <div class="code"><span id="promo">gg26-sdr100</span><button class="copy-btn" onclick="copyCode()">Copy</button></div>
+          <div class="lbl">Event &amp; live agenda</div>
+          <a class="btn-link" href="https://www.glean.com/events/glean-go-2026" target="_blank" rel="noopener">Open Glean:GO 2026 &#8599;</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing" class="reveal">
+      <div class="kicker">How it's priced</div>
+      <h2>The business model, briefly</h2>
+      <p class="section-sub">You asked how licensing works. There are three common structures, and we can tailor to what fits HP.</p>
+      <div class="cards">
+        <div class="card" style="cursor:default">
+          <div class="card-top"><h4>Per user, per month</h4></div>
+          <p>Straightforward seat-based licensing for defined groups of users.</p>
+          <span class="tag">Seat-based</span>
+        </div>
+        <div class="card" style="cursor:default">
+          <div class="card-top"><h4>Commit on Glean keys</h4></div>
+          <p>You sign up to a commit and consume against it, with usage metered and monitored on our keys.</p>
+          <span class="tag">Commit &middot; Metered</span>
+        </div>
+        <div class="card" style="cursor:default">
+          <div class="card-top"><h4>Usage-based</h4></div>
+          <p>Commit to a certain amount, with usage tracked against defined metrics. Bring-your-own-models is also supported.</p>
+          <span class="tag">Consumption</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="next" class="reveal">
+      <div class="kicker">From here</div>
+      <h2>A possible next step</h2>
+      <p class="section-sub">If helpful, a short technical working session before the event, focused on:</p>
+      <ul class="next-list">
+        <li>The minimum viable data set to create value at HP</li>
+        <li>The highest-frequency use cases we see in production</li>
+        <li>How we think about token efficiency in practice</li>
+        <li>Where teams run into friction building the context layer internally, and what a limited-scope pilot could look like</li>
+      </ul>
+    </section>
+
+    <footer>
+      Looking forward to continuing the conversation, and to catching up at the event.
+      <div class="sig">Gautam Batta &amp; Pearl Ramirez <span>&middot; Glean</span></div>
+    </footer>
+  </main>
+</div>
+</div>
+
+<script>
+  function copyCode(){
+    var t="gg26-sdr100";try{navigator.clipboard.writeText(t);}catch(e){}
+    var b=event.target;var o=b.textContent;b.textContent="Copied";setTimeout(function(){b.textContent=o;},1600);
+  }
+  // progress + scroll spy
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  var secs=links.map(function(l){return document.querySelector(l.getAttribute('href'));});
+  function onScroll(){
+    var h=document.documentElement;var st=h.scrollTop||document.body.scrollTop;
+    var sh=h.scrollHeight-h.clientHeight;
+    document.getElementById('progress').style.width=(sh>0?(st/sh*100):0)+'%';
+    var y=st+150;var idx=0;
+    secs.forEach(function(s,i){if(s&&s.offsetTop<=y)idx=i;});
+    links.forEach(function(l,i){l.classList.toggle('active',i===idx);});
+  }
+  window.addEventListener('scroll',onScroll);onScroll();
+
+  // reveal on scroll
+  var ro=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target);}});},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(function(el){ro.observe(el);});
+
+  // count-up
+  function animate(el){
+    var to=parseFloat(el.dataset.to),dec=parseInt(el.dataset.dec||"0"),start=null,dur=1100;
+    function step(ts){if(!start)start=ts;var p=Math.min((ts-start)/dur,1);var e=1-Math.pow(1-p,3);
+      el.textContent=(to*e).toFixed(dec);if(p<1)requestAnimationFrame(step);else el.textContent=to.toFixed(dec);}
+    requestAnimationFrame(step);
+  }
+  var mo=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){animate(e.target);mo.unobserve(e.target);}});},{threshold:.5});
+  document.querySelectorAll('.count').forEach(function(el){mo.observe(el);});
+
+  // PDF export
+  window.GleanBridge.postMessage({actionId:'export-pdf',type:'glean-add-menu',metadata:{label:'Export as PDF',icon:'export'}});
+  window.GleanBridge.onMessage('action',function(data){if(data.actionId==='export-pdf')window.print();});
+</script>
+</body>
+</html>
